@@ -1,0 +1,10 @@
+<table class="table table-striped">
+  <tr>
+    <th class="text-capitalize">{{keys.x}}</th>
+    <th class="text-capitalize">{{keys.y}}</th>
+  </tr>
+  <tr ng-repeat="point in data">
+    <td ng-click="onClickXValue()(point)">{{point[keys.x]}}</td>
+    <td>{{point[keys.y]}}</td>
+  </tr>
+</table>
