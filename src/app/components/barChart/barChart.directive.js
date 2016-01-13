@@ -23,7 +23,7 @@
   //
   angular
     .module('angularPlotExample')
-    .directive('barChart', function() {
+    .directive('barChart', ['$timeout', function($timeout) {
       return {
         restrict: 'E',
         scope: {
@@ -100,11 +100,11 @@
           var timeoutId;
           scope.$watch('data', function(newData){
             if (timeoutId) {
-              clearTimeout(timeoutId);
+              $timeout.cancel(timeoutId);
             }
-            timeoutId = setTimeout(function(){
+            timeoutId = $timeout(function(){
               updateBars(newData);
-            }, 450); // use timeout because search filter during transition skips update
+            }, 450); // use timeout so every letter press doesnt immediately trigger giant DOM change
           });
           scope.$watch('highlightedXValue', function(newVal, oldVal){
             if (newVal){
@@ -120,6 +120,6 @@
           });
         }
       };
-    });
+    }]);
 
 })();
