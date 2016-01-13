@@ -54,7 +54,7 @@
 
     it('has an onChangeInput handler to filter $scope.data based on user queries', function(){
       // uppercase query
-      $scope.onChangeInput('John  Amanda ');
+      $scope.onChangeInput('John 👀 Amanda ');
       expect($scope.data).toEqual([
         {name: 'John',	frequency: 0.08167},
         {name: 'Amanda',	frequency: 0.01492}
