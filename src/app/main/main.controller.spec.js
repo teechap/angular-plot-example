@@ -1,43 +1,75 @@
 (function() {
   'use strict';
 
-  describe('controllers', function(){
-    var vm;
-    var $timeout;
-    var toastr;
+  describe('NameChartController', function(){
+    var $scope;
+    var NameFactory;
+    var mockNameFrequenciesData;
 
     beforeEach(module('angularPlotExample'));
-    beforeEach(inject(function(_$controller_, _$timeout_, _webDevTec_, _toastr_) {
-      // spyOn(_webDevTec_, 'getTec').and.returnValue([{}, {}, {}, {}, {}]);
-      // spyOn(_toastr_, 'info').and.callThrough();
-      //
-      // vm = _$controller_('MainController');
-      // $timeout = _$timeout_;
-      // toastr = _toastr_;
+
+    beforeEach(inject(function(_$controller_, _NameFactory_) {
+      mockNameFrequenciesData = [
+        {name: 'John',	frequency: 0.08167},
+        {name: 'Amanda',	frequency: 0.01492},
+        {name: 'Jackson',	frequency: 0.02780}
+      ];
+      NameFactory = _NameFactory_; // mock name factory for controller's unit tests
+      spyOn(_NameFactory_, 'getNameFrequencies').and.returnValue(mockNameFrequenciesData);
+
+      var $controller = _$controller_;
+      $scope = {};
+      var NameChartController = $controller('NameChartController', {$scope: $scope});
     }));
 
-    // it('should assign a message', function() {
-    //   console.log(vm);
-    //   expect(vm.message).toBe('hello world');
-    // });
-    // it('should have a timestamp creation date', function() {
-    //   expect(vm.creationDate).toEqual(jasmine.any(Number));
-    // });
-    //
-    // it('should define animate class after delaying timeout ', function() {
-    //   $timeout.flush();
-    //   expect(vm.classAnimation).toEqual('rubberBand');
-    // });
-    //
-    // it('should show a Toastr info and stop animation when invoke showToastr()', function() {
-    //   vm.showToastr();
-    //   expect(toastr.info).toHaveBeenCalled();
-    //   expect(vm.classAnimation).toEqual('');
-    // });
-    //
-    // it('should define more than 5 awesome things', function() {
-    //   expect(angular.isArray(vm.awesomeThings)).toBeTruthy();
-    //   expect(vm.awesomeThings.length === 5).toBeTruthy();
-    // });
+    it('assigns data from the NameFactory to its $scope', function() {
+      expect($scope.data).toEqual(mockNameFrequenciesData);
+      expect(NameFactory.getNameFrequencies).toHaveBeenCalled();
+    });
+
+    it('assigns x and y key names to its $scope', function(){
+      // Ideally, simple x and y bar charts should be reusable, so there's
+      // no reason to hard-code the names of keys in the data array within rendering directives.
+      // The directives just render the graph and send user interaction events
+      // back up to the controller, where the business logic is defined.
+      // Here, we make sure the controller component, NameChartController, defines
+      // the key strings <bar-chart> needs to render the data in $scope.data.
+      expect($scope.keys).toEqual({
+        x: 'name',
+        y: 'frequency'
+      });
+    });
+
+    it('defines an events handler, onClickName, to highlight x values', function(){
+      // Directives are passed an event handler from the contoller so they can
+      // respond to user interactions. The controller "controls" handling logic.
+      var pointClicked = mockNameFrequenciesData[0];
+      // initially, $scope.highlightedXValue should be null (or at least falsy)
+      expect($scope.highlightedXValue).toBeFalsy();
+
+      $scope.onClickName(pointClicked);
+
+      expect($scope.highlightedXValue).toBe(pointClicked.name);
+    });
+
+    it('has an onChangeInput handler to filter $scope.data based on user queries', function(){
+      // uppercase query
+      $scope.onChangeInput('John  Amanda ');
+      expect($scope.data).toEqual([
+        {name: 'John',	frequency: 0.08167},
+        {name: 'Amanda',	frequency: 0.01492}
+      ]);
+
+      // it should restore the full data array with an empty-ish query
+      $scope.onChangeInput('  ');
+      expect($scope.data).toEqual(mockNameFrequenciesData);
+
+      // lowercase query
+      $scope.onChangeInput(' John jackson ');
+      expect($scope.data).toEqual([
+        {name: 'John',	frequency: 0.08167},
+        {name: 'Jackson',	frequency: 0.02780}
+      ]);
+    });
   });
 })();
