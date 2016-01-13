@@ -10,3 +10,4 @@ This is a simple app to demonstrate d3 working in an angular directive. It was s
 1. `git clone` this repo
 2. `npm install` and `bower install` the dependencies
 3. `gulp serve` to see the visualization at `localhost:3000`
+4. `gulp test` to run tests. Jslint will complain, but the tests are passing.
