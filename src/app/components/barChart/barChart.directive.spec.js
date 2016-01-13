@@ -1,45 +1,61 @@
 (function() {
   'use strict';
 
-  /**
-   * @todo Complete the test
-   * This example is not perfect.
-   * The `link` function is not tested.
-   * (malarkey usage, addClass, $watch, $destroy)
-   */
   describe('directive malarkey', function() {
-    var $log;
-    var vm;
-    var el;
+    var scope,
+        el,
+        compiled,
+        html,
+        mockNameFrequenciesData;
 
     beforeEach(module('angularPlotExample'));
-    beforeEach(inject(function($compile, $rootScope, $q, _$log_) {
-      // $log = _$log_;
-      //
-      // spyOn(githubContributor, 'getContributors').and.callFake(function() {
-      //   return $q.when([{}, {}, {}, {}, {}, {}]);
-      // });
-      //
-      // el = angular.element('<acme-malarkey extra-values="[\'Poney\', \'Monkey\']"></acme-malarkey>');
-      //
-      // $compile(el)($rootScope.$new());
-      // $rootScope.$digest();
-      // vm = el.isolateScope().vm;
-    }));
 
-    // it('should be compiled', function() {
-    //   expect(el.html()).not.toEqual(null);
-    // });
-    //
-    // it('should have isolate scope object with instanciate members', function() {
-    //   expect(vm).toEqual(jasmine.any(Object));
-    //
-    //   expect(vm.contributors).toEqual(jasmine.any(Array));
-    //   expect(vm.contributors.length).toEqual(6);
-    // });
-    //
-    // it('should log a info', function() {
-    //   expect($log.info.logs).toEqual(jasmine.stringMatching('Activated Contributors View'));
-    // });
+    beforeEach(function(){
+      mockNameFrequenciesData = [
+        {name: 'John',	frequency: 0.08167},
+        {name: 'Amanda',	frequency: 0.01492},
+        {name: 'Jackson',	frequency: 0.02780}
+      ];
+      html = '<bar-chart data="data" keys="keys" highlighted-x-value="highlightedXValue"></bar-chart>';
+      inject(function($compile, $rootScope) {
+        scope = $rootScope.$new();
+        scope.keys = {
+          x: 'name',
+          y: 'frequency'
+        };
+        scope.highlightedXValue = null;
+        scope.data = mockNameFrequenciesData;
+
+        el = angular.element(html); // returns jqLite element
+        compiled = $compile(el); // compiles the element into a function
+        compiled(scope); // run the function to create the view
+        scope.$digest(); //
+      });
+    });
+
+    it('renders a container svg', function(){
+      expect(el.find('svg')).toBeTruthy(); // just a sanity check
+    });
+
+    it('renders x axis labels in the DOM', function(){
+      // These tests could get much more elaborate (i.e. styles, positioning, etc),
+      // but for now I just want to make sure the names render *at all*.
+      // In reality we would want to test for bars, ticks, etc.
+      var text = el.text();
+      expect(text).toContain('John');
+      expect(text).toContain('Amanda');
+      expect(text).toContain('Jackson');
+    });
+
+    it('renders y axis label', function(){
+      var text = el.text();
+      expect(text).toContain('Frequency');
+    });
+
+    it('renders a <rect> with .bar class for each data point in $scope.data', function(){
+      var rects = el.find('rect');
+      console.log(el.html());
+      console.log('fsegfdggggggggg', rects);
+    });
   });
 })();
